@@ -5,13 +5,13 @@
 PREFIX schema: <http://schema.org/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT DISTINCT ?agent2 ?agentName (COUNT(?dataset) AS ?datasetCount) (GROUP_CONCAT(DISTINCT ?catalogShort; separator=", ") AS ?catalogs)
+SELECT DISTINCT ?agent3 ?agentName (COUNT(?dataset) AS ?datasetCount) (GROUP_CONCAT(DISTINCT ?catalogShort; separator=", ") AS ?catalogs)
 WHERE {
     ?dataset rdf:type schema:Dataset ;
-             schema:infectiousAgent ?agent2 ;
+             schema:infectiousAgent ?agent3 ;
              schema:includedInDataCatalog ?catalog .
-    ?agent2 schema:name ?agentName .
+    ?agent3 schema:name ?agentName .
     BIND(REPLACE(STR(?catalog), "^https://okn\\.wobd\\.org/catalog/", "") AS ?catalogShort)
 }
-GROUP BY ?agent2 ?agentName
+GROUP BY ?agent3 ?agentName
 ORDER BY DESC(?datasetCount)
