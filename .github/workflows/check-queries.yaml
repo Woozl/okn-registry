@@ -8,9 +8,76 @@ on:
 jobs:
   check-queries:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write  # Required to post comments
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Success message
-        run: echo "Success"
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      
+      - name: Install dependencies
+        working-directory: scripts/check_queries
+        run: npm ci
+      
+      - name: Get changed .rq files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            docs/registry/queries/**.rq
+      
+      - name: Run query validation
+        id: validation
+        if: steps.changed-files.outputs.any_changed == 'true'
+        working-directory: scripts/check_queries
+        run: |
+          OUTPUT=$(node index.js ${{ steps.changed-files.outputs.all_changed_files }})
+          echo "$OUTPUT"
+          
+          echo "VALIDATION_OUTPUT<<EOF" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Comment PR
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `${{ steps.validation.outputs.VALIDATION_OUTPUT }}`;
+            
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Query Validation Results')
+            );
+            
+            const commentBody = `## Query Validation Results\n\n${output}`;
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
