@@ -13,5 +13,5 @@ WHERE {
     ?agent2 schema:name ?agentName .
     BIND(REPLACE(STR(?catalog), "^https://okn\\.wobd\\.org/catalog/", "") AS ?catalogShort)
 }
-GROUP BY ?agent ?agentName
+GROUP BY ?agent2 ?agentName
 ORDER BY DESC(?datasetCount)
