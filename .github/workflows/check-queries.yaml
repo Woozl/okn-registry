@@ -3,7 +3,7 @@ name: "Check queries"
 on:
   pull_request:
     paths:
-      - "queries/**.rq"
+      - "docs/registry/queries/**.rq"
 
 jobs:
   check-queries:
