@@ -1,0 +1,16 @@
+name: "Check queries"
+
+on:
+  pull_request:
+    paths:
+      - "queries/**.rq"
+
+jobs:
+  check-queries:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Success message
+        run: echo "Success"
