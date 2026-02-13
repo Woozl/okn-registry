@@ -13,7 +13,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,7 +36,7 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         working-directory: scripts/check_queries
         run: |
-          OUTPUT=$(npm start -- ${{ steps.changed-files.outputs.all_changed_files }})
+          OUTPUT=$(npm start -- ${{ github.workspace }} ${{ steps.changed-files.outputs.all_changed_files }})
           echo "$OUTPUT"
           
           echo "VALIDATION_OUTPUT<<EOF" >> $GITHUB_OUTPUT
