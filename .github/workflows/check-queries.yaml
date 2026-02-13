@@ -36,7 +36,7 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         working-directory: scripts/check_queries
         run: |
-          OUTPUT=$(node index.js ${{ steps.changed-files.outputs.all_changed_files }})
+          OUTPUT=$(npm start -- ${{ steps.changed-files.outputs.all_changed_files }})
           echo "$OUTPUT"
           
           echo "VALIDATION_OUTPUT<<EOF" >> $GITHUB_OUTPUT
